@@ -1,7 +1,7 @@
 import React from "react";
-import { Rect, Star, Transformer } from "react-konva";
+import { Ellipse, Transformer } from "react-konva";
 
-export const StarSticker = (props:any) => {
+export const EllipseSticker = (props:any) => {
     const { sticker, isSelected, onDrag, onDrop, onSelect, onChange, onContextMenu } = props;
     const shapeRef = React.useRef<any>();
     const trRef = React.useRef<any>();
@@ -17,7 +17,7 @@ export const StarSticker = (props:any) => {
 
     return (
       <>
-        <Star
+        <Ellipse
           ref={shapeRef}
           key={sticker.id}
           id={sticker.id}
@@ -36,7 +36,7 @@ export const StarSticker = (props:any) => {
           shadowOffsetY={sticker.isDragging ? sticker.shape.style.shadowOffsetY*2 : sticker.shape.style.shadowOffsetY}
           scaleX={sticker.isDragging ? sticker.shape.style.scaleX+.1 : sticker.shape.style.scaleX}
           scaleY={sticker.isDragging ? sticker.shape.style.scaleY+.1 : sticker.shape.style.scaleY}
-          
+          centeredScaling={true}
           onDragStart={onDrag}
           onDragEnd={()=>{
             const node = shapeRef.current;
@@ -53,8 +53,11 @@ export const StarSticker = (props:any) => {
           onTap={onSelect}
           onChange={onChange}
           onContextMenu={onContextMenu}
-          centeredScaling={true}
           onTransformEnd={(e) => {
+            // transformer is changing scale of the node
+            // and NOT its width or height
+            // but in the store we have only width and height
+            // to match the data better we will reset scale on transform end
             const node = shapeRef.current;
             const scaleX = node.scaleX();
             const scaleY = node.scaleY();
@@ -62,22 +65,19 @@ export const StarSticker = (props:any) => {
             // we will reset it back
             node.scaleX(1);
             node.scaleY(1);
-            console.log("node",node, node.outerRadius());
             onChange({
               ...sticker,
               x: node.x(),
               y: node.y(),
               // set minimal value
-              width: ( node.width() * scaleX),
-              height: (node.height() * scaleY),
+              width: Math.max(5, node.width() * scaleX),
+              height: Math.max(node.height() * scaleY),
               shape:{
                 ...sticker.shape, 
                 style: {
                   ...sticker.shape.style,
                   scaleX: 1,
                   scaleY: 1,
-                  innerRadius: node.innerRadius() * scaleX * scaleY,
-                  outerRadius: node.outerRadius() * scaleX * scaleY,
                   skewX:node.skewX(),
                   skewY:node.skewY()
                 }

@@ -1,5 +1,5 @@
 import { useTheme } from "../../hooks/useThemeContext";
-import { Icon } from "./Icon"
+import { Icon } from "../Icon"
 
 
 export const ThemeIcon = () => {
