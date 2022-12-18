@@ -13,21 +13,25 @@ const initialState = {
   //state:{
     selectedSticker: null,
     background:{
-      type: "color",
-      color: "red",
-      gradient: "",
-      image: ""
+      type: "image",
+      fill: "white",
+      gradient: {
+        colorStart:"red",
+        colorEnd:"blue",
+        angle:140
+      },
+      image:  'https://konvajs.github.io/assets/yoda.jpg'
     }
 
   //}
 } as AppStateContextType
-
+/*
 const initialContext = {
     state:{
       selectedSticker: null,
       background:{
         type: "color",
-        color: "red",
+        fill: "red",
         gradient: "",
         image: ""
       }
@@ -36,6 +40,7 @@ const initialContext = {
         //console.log("dispatching")
     } 
 };
+*/
 
   const AppStateContext = createContext<{
         state: AppStateContextType;
@@ -92,22 +97,16 @@ const useAppState = () => {
     const stopDraggingSticker = (id:string)=>{
       dispatch({type:"stopDraggingSticker", payload:{}});
     }
-    const setStickers = (stickers:any)=>{
-      dispatch({type:"setStickers", payload:{stickers}});
-    }
     const selectSticker = (id:string)=>{
       dispatch({type:"selectSticker", payload:{id}});
     }
     const unselectSticker = ()=>{
       dispatch({type:"unselectSticker", payload:{}});
     }
-    const updateSticker = (id: string, sticker:any)=>{
-      dispatch({type:"updateSticker", payload:{sticker}});
+    const setBackground = (background:any)=>{
+      dispatch({type:"setBackground", payload:{background}});
     }
-
-
-
-    return [ state, { startDraggingSticker, stopDraggingSticker, setStickers, selectSticker,updateSticker, unselectSticker}  ]
+    return [ state, { startDraggingSticker, stopDraggingSticker, selectSticker, unselectSticker, setBackground}  ]
   };
 
 

@@ -92,8 +92,12 @@ export interface AppStateContextType {
   selectedSticker: string|null|undefined,
   background:{
     type: "color" | "gradient" | "image",
-    color?: string,
-    gradient?: string,
+    fill?: string,
+    gradient?: {
+      colorStart?:string,
+      colorEnd?:string,
+      angle?:number
+    },
     image?: string
   }
 }

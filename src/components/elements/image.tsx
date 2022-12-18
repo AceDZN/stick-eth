@@ -1,8 +1,10 @@
 import React from "react";
-import { Rect, Transformer } from "react-konva";
+import { Image, Transformer } from "react-konva";
+import useImage from "use-image";
 
-export const RectSticker = (props:any) => {
-    const { sticker, isSelected, onDrag, onDrop, onSelect, onChange } = props;
+export const ImageSticker = (props:any) => {
+    const { sticker, isSelected, onDrag, onDrop, onSelect, onChange, onContextMenu } = props;
+    const [image, status] = useImage(sticker.src);
     const shapeRef = React.useRef<any>();
     const trRef = React.useRef<any>();
 
@@ -14,9 +16,11 @@ export const RectSticker = (props:any) => {
       }
     }, [isSelected, trRef?.current]);
       
+
     return (
       <>
-        <Rect
+        <Image
+            image={image}
             ref={shapeRef}
             key={sticker.id}
             id={sticker.id}
@@ -27,59 +31,60 @@ export const RectSticker = (props:any) => {
             rotation={sticker.rotation}
             width={sticker.width}
             height={sticker.height}
-  
             {...sticker.shape.style}
-            fill={sticker.isDragging ? "purple" : isSelected ? "blue" : sticker.shape.style.fill}
             shadowOffsetX={sticker.isDragging ? sticker.shape.style.shadowOffsetX*2 : sticker.shape.style.shadowOffsetX}
             shadowOffsetY={sticker.isDragging ? sticker.shape.style.shadowOffsetY*2 : sticker.shape.style.shadowOffsetY}
-            scaleX={sticker.isDragging ? sticker.shape.style.scaleX+.1 : sticker.shape.style.scaleX}
-            scaleY={sticker.isDragging ? sticker.shape.style.scaleY+.1 : sticker.shape.style.scaleY}
-            centeredScaling={true}
+            scaleX={sticker.isDragging ? sticker.shape.style.scaleX+.01 : sticker.shape.style.scaleX}
+            scaleY={sticker.isDragging ? sticker.shape.style.scaleY+.01 : sticker.shape.style.scaleY}
+            
             onDragStart={onDrag}
-            onClick={onSelect}
-            onTap={onSelect}
             onDragEnd={()=>{
-              const node = shapeRef.current;
-              onChange({
+                const node = shapeRef.current;
+                onChange({
                 ...sticker,
                 x: node.x(),
                 y: node.y()
-              });
-              onDrop();
+                });
+                onDrop();
             }}
+
+
+            onClick={onSelect}
+            onTap={onSelect}
+            onChange={onChange}
+            onContextMenu={onContextMenu}
+            centeredScaling={true}
             onTransformEnd={(e) => {
-              // transformer is changing scale of the node
-              // and NOT its width or height
-              // but in the store we have only width and height
-              // to match the data better we will reset scale on transform end
-              const node = shapeRef.current;
-              const scaleX = node.scaleX();
-              const scaleY = node.scaleY();
-    
-              // we will reset it back
-              node.scaleX(1);
-              node.scaleY(1);
-              onChange({
+                const node = shapeRef.current;
+                const scaleX = node.scaleX();
+                const scaleY = node.scaleY();
+                
+                console.log(node,"NODE");
+                console.log(e,"EVENT");
+                // we will reset it back
+                node.scaleX(1);
+                node.scaleY(1);
+                onChange({
                 ...sticker,
                 x: node.x(),
                 y: node.y(),
                 // set minimal value
-                width: Math.max(5, node.width() * scaleX),
-                height: Math.max(node.height() * scaleY),
+                width: ( node.width() * scaleX),
+                height: (node.height() * scaleY),
                 shape:{
-                  ...sticker.shape, 
-                  style: {
+                    ...sticker.shape, 
+                    style: {
                     ...sticker.shape.style,
                     scaleX: 1,
                     scaleY: 1,
                     skewX:node.skewX(),
                     skewY:node.skewY()
-                  }
+                    }
                 }
                 
-              });
+                });
             }}
-        />
+      />
         {isSelected && (
           <Transformer
             ref={trRef}
