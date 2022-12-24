@@ -88,12 +88,16 @@ export interface TextSticker extends Sticker {
 }
 
 export interface AppStateContextType {
-  
+  contextMenu: any,
   selectedSticker: string|null|undefined,
   background:{
     type: "color" | "gradient" | "image",
-    color?: string,
-    gradient?: string,
+    fill?: string,
+    gradient?: {
+      colorStart?:string,
+      colorEnd?:string,
+      angle?:number
+    },
     image?: string
   }
 }

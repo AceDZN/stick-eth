@@ -16,6 +16,7 @@
     "konva": "^8.3.14",
     "process": "^0.11.10",
     "react": "^18.2.0",
+    "react-color": "^2.19.3",
     "react-dom": "^18.2.0",
     "react-drag-drop-files": "^2.3.8",
     "react-konva": "^18.2.3",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@types/react": "^18.0.9",
+    "@types/react-color": "^3.0.6",
     "@types/react-dom": "^18.0.3",
     "@vitejs/plugin-react": "^2.1.0",
     "autoprefixer": "^10.4.13",

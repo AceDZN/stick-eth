@@ -1,8 +1,8 @@
 import React from "react";
-import { Rect, Transformer } from "react-konva";
+import { Ellipse, Transformer } from "react-konva";
 
-export const RectSticker = (props:any) => {
-    const { isSelected} = props;
+export const EllipseSticker = (props:any) => {
+    const { sticker, isSelected, onDrag, onDrop, onSelect, onChange, onContextMenu } = props;
     const shapeRef = React.useRef<any>();
     const trRef = React.useRef<any>();
 
@@ -14,9 +14,10 @@ export const RectSticker = (props:any) => {
       }
     }, [isSelected, trRef?.current]);
       
+
     return (
       <>
-        <Rect
+        <Ellipse
             ref={shapeRef}
             key={props.id}
             {...props.style}
@@ -41,7 +42,7 @@ export const RectSticker = (props:any) => {
               node.scaleX(1);
               node.scaleY(1);
             }}
-        />
+      />
         {isSelected && (
           <Transformer
             ref={trRef}

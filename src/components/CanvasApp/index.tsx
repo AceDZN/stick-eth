@@ -4,39 +4,13 @@ import { createRoot } from 'react-dom/client';
 import { Stage, Layer, Star, Text, Image } from 'react-konva';
 import useImage from 'use-image';
 import { Sticker } from '../../types';
-import { generateImages, generateShapes } from '../../utils/utils';
+import { generateShapes } from '../../utils/utils';
 import { useAppState } from '../../hooks/useAppStateContext';
 import { StickerEl } from '../elements';
 import { useStickers } from '../../hooks/useStickersContext';
+import { BackgroundLayer } from '../elements/background';
 
 
-
-const doodle = "https://www.google.com/logos/doodles/2022/2022-world-cup-semi-finals-dec-13-14-6753651837110008-s.png";
-const ImageElement = ({id,src=doodle,onDrop,onDrag,x,y,width,height,rotation, isDragging }:Sticker)=>{
-    const [image, status] = useImage(src);
- 
-    return  (
-        <Image
-            image={image}
-            key={id}
-            id={id}
-            x={x}
-            y={y}
-            opacity={0.8}
-            draggable
-            rotation={rotation}
-            shadowColor="black"
-            shadowBlur={10}
-            shadowOpacity={0.6}
-            shadowOffsetX={isDragging ? 10 : 5}
-            shadowOffsetY={isDragging ? 10 : 5}
-            scaleX={isDragging ? 1.2 : 1}
-            scaleY={isDragging ? 1.2 : 1}
-            onDrag={onDrag}
-            onDrop={onDrop}
-        />
-    )
-}
 //const INITIAL_STICKERS = generateStickers();
 const CanvasApp = (props: { width?: number, height?: number }) => {
     /*
@@ -56,8 +30,6 @@ const CanvasApp = (props: { width?: number, height?: number }) => {
     const [state, { unselectSticker}] = useAppState();
     const [stickersState, {setStickers}] = useStickers();
     //console.log(stickersState,"stickerState");
-    const INITIAL_STATE = generateShapes(width, height)// [...Array(5)].map((_, i) => generateSticker({type:"star", id: i },{canvasWidth:width, canvasHeight:height}));
-    const INITIAL_IMAGES = generateImages(width, height)
     
     //const [stickers, setStickers] = React.useState(INITIAL_STATE);
 
@@ -68,9 +40,10 @@ const CanvasApp = (props: { width?: number, height?: number }) => {
 
   // deselect when clicked on empty area
     const checkDeselect = useCallback((e:any) => {
-        
-        const clickedOnEmpty = e.target === e.target.getStage();
+        console.log(e.target,"target clicked");
+        const clickedOnEmpty = e.target === e.target.getStage() || e.target.attrs.id === "background-layer";
         if (clickedOnEmpty) {
+            unselectSticker()
             unselectSticker();
         }
     },[stickersState, unselectSticker]);
@@ -79,11 +52,17 @@ const CanvasApp = (props: { width?: number, height?: number }) => {
     return (
         <Stage width={width} height={height} onMouseDown={checkDeselect} onTouchStart={checkDeselect}>
             <Layer>
+                <BackgroundLayer width={width} height={height} params={state.background} />
+            </Layer>
+
+
+
+            <Layer>
                 <Text text="Try to drag a star" />
                 
                 {stickersState.stickers.map((sticker:Sticker, i:number) => (
                     <StickerEl
-                        key={sticker.id}
+                        key={sticker.id || sticker.key}
                         sticker={sticker}
                         isSelected={sticker.id === state.selectedSticker}
                     />

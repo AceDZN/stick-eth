@@ -11,23 +11,28 @@ type DispatchInterface = (action: AppStateActionInterface) => void;
 //const AppStateContext = React.createContext<AppStateContextType>({} as any)
 const initialState = {
   //state:{
+    contextMenu: {},
     selectedSticker: null,
     background:{
-      type: "color",
-      color: "red",
-      gradient: "",
-      image: ""
+      type: "image",
+      fill: "white",
+      gradient: {
+        colorStart:"red",
+        colorEnd:"blue",
+        angle:140
+      },
+      image:  'https://konvajs.github.io/assets/yoda.jpg'
     }
 
   //}
 } as AppStateContextType
-
+/*
 const initialContext = {
     state:{
       selectedSticker: null,
       background:{
         type: "color",
-        color: "red",
+        fill: "red",
         gradient: "",
         image: ""
       }
@@ -36,6 +41,7 @@ const initialContext = {
         //console.log("dispatching")
     } 
 };
+*/
 
   const AppStateContext = createContext<{
         state: AppStateContextType;
@@ -56,7 +62,11 @@ const reducerAppState = (
     
     switch (action.type) {
       case "unselectSticker":
-        return {...state, selectedSticker: null}
+        return {...state, selectedSticker: null, contextMenu: {}}
+      case "openContextMenu":
+        return {...state, contextMenu: action.payload.contextMenu}
+      case "closeContextMenu":
+        return {...state, contextMenu: {}}
       case "selectSticker":
         if(action.payload.id !== state.selectedSticker){
           return {...state, selectedSticker: action.payload.id}
@@ -85,15 +95,11 @@ const useAppState = () => {
     const {state, dispatch } = useContext(AppStateContext) as any;
     //console.log("USE AppState", state)
 
-
-    const startDraggingSticker = (id:string)=>{
-        dispatch({type:"startDraggingSticker", payload:{id}});
+    const openContextMenu = (contextMenu:any)=>{
+      dispatch({type:"openContextMenu", payload: {contextMenu}})
     }
-    const stopDraggingSticker = (id:string)=>{
-      dispatch({type:"stopDraggingSticker", payload:{}});
-    }
-    const setStickers = (stickers:any)=>{
-      dispatch({type:"setStickers", payload:{stickers}});
+    const closeContextMenu = ()=>{
+      dispatch({type:"closeContextMenu", payload: {}})
     }
     const selectSticker = (id:string)=>{
       dispatch({type:"selectSticker", payload:{id}});
@@ -101,13 +107,10 @@ const useAppState = () => {
     const unselectSticker = ()=>{
       dispatch({type:"unselectSticker", payload:{}});
     }
-    const updateSticker = (id: string, sticker:any)=>{
-      dispatch({type:"updateSticker", payload:{sticker}});
+    const setBackground = (background:any)=>{
+      dispatch({type:"setBackground", payload:{background}});
     }
-
-
-
-    return [ state, { startDraggingSticker, stopDraggingSticker, setStickers, selectSticker,updateSticker, unselectSticker}  ]
+    return [ state, { openContextMenu,closeContextMenu, selectSticker, unselectSticker, setBackground}  ]
   };
 
 

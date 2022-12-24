@@ -2,10 +2,10 @@ import React from "react";
 import { Rect, Star, Transformer } from "react-konva";
 
 export const StarSticker = (props:any) => {
-    const { sticker, isSelected, onDrag, onDrop, onSelect, onChange } = props;
+    const { sticker, isSelected, onDrag, onDrop, onSelect, onChange, onContextMenu } = props;
     const shapeRef = React.useRef<any>();
     const trRef = React.useRef<any>();
-  
+
     React.useEffect(() => {
       if (isSelected && trRef.current && trRef.current) {
         // we need to attach transformer manually
@@ -19,28 +19,29 @@ export const StarSticker = (props:any) => {
       <>
         <Star
           ref={shapeRef}
-          key={sticker.id}
-          id={sticker.id}
-          isSelected={isSelected}
-          x={sticker.x}
-          y={sticker.y}
-          draggable={sticker.draggable}
-          rotation={sticker.rotation}
-          width={sticker.width}
-          height={sticker.height}
-
-          {...sticker.shape.style}
-          fill={sticker.isDragging ? "purple" : isSelected ? "blue" : sticker.shape.style.fill}
-          shadowOffsetX={sticker.isDragging ? sticker.shape.style.shadowOffsetX*2 : sticker.shape.style.shadowOffsetX}
-          shadowOffsetY={sticker.isDragging ? sticker.shape.style.shadowOffsetY*2 : sticker.shape.style.shadowOffsetY}
-          scaleX={sticker.isDragging ? sticker.shape.style.scaleX+.2 : sticker.shape.style.scaleX}
-          scaleY={sticker.isDragging ? sticker.shape.style.scaleY+.2 : sticker.shape.style.scaleY}
-
-          onDragStart={onDrag}
-          onDragEnd={onDrop}
-          onClick={onSelect}
-          onTap={onSelect}
-          onChange={onChange}
+          key={props.id}
+          {...props.style}
+          {...props}
+          onDragEnd={()=>{
+            const node = shapeRef.current;
+            props.onDragEnd({
+              x: node.x(),
+              y: node.y()
+            })
+          }}
+          onTransformEnd={() => {
+            // transformer is changing scale of the node
+            // and NOT its width or height
+            // but in the store we have only width and height
+            // to match the data better we will reset scale on transform end
+            const node = shapeRef.current;
+            const scaleX = node.scaleX();
+            const scaleY = node.scaleY();
+            props.onTransformEnd(node,scaleX,scaleY);
+            
+            node.scaleX(1);
+            node.scaleY(1);
+          }}
       />
         {isSelected && (
           <Transformer

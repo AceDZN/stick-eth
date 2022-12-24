@@ -36,8 +36,6 @@ const reducerStickers = (
     state: StickersContextType,
     action: StickersActionInterface
   ): StickersContextType => {
-    const currentState = {...state};
-    const {stickers} = currentState;
     switch (action.type) {
       case "setStickers":
         console.log("setStickers", action.payload.stickers)
@@ -45,25 +43,34 @@ const reducerStickers = (
         
       case "addSticker":
         console.log("addSticker", action.payload.sticker)
-        return { ...state, stickers: [...stickers, action.payload.sticker] };
+        return { ...state, stickers: [...state.stickers, action.payload.sticker] };
       case "removeSticker":
+        if(!action.payload.id){
+          return {...state}
+        }
         console.log("removeSticker", action.payload.id)
-        const removedIndex = stickers.map(function(o:Sticker) { return o.id; }).indexOf(action.payload.id);
-        return { ...state, stickers: [...stickers.splice(removedIndex, 1)] };
-
+        const indexToRemove = state.stickers.map(function(o:Sticker) { return o.id; }).indexOf(action.payload.id);
+        const removed_stickers = [...state.stickers.slice(0, indexToRemove), ...state.stickers.slice(indexToRemove + 1)];
+        return { ...state, stickers: [...removed_stickers] };
+      case "shuffleStickers":
+        console.log("shuffleStickers", action.payload.id)
+        const shuffled_stickers = [...state.stickers.map((value:any) => ({ value, sort: Math.random() })).sort((a:any, b:any) => a.sort - b.sort).map(({ value }:{ value:any }) => value)];
+        return { ...state, stickers: [...shuffled_stickers] };
+  
       case "startDraggingSticker":        
         console.log("startDraggingSticker", action.payload.id)
-        return {...state, stickers: stickers.map((sticker:Sticker) => ({ ...sticker, isDragging: sticker.id === action.payload.id }))}
+        return {...state, stickers: state.stickers.map((sticker:Sticker) => ({ ...sticker, isDragging: sticker.id === action.payload.id }))}
 
       case "stopDraggingSticker":
         console.log("stopDraggingSticker", "isDragging: false ")
-        return {...state, stickers: stickers.map((sticker:Sticker) => ({ ...sticker, isDragging: false }))}
+        return {...state, stickers: state.stickers.map((sticker:Sticker) => ({ ...sticker, isDragging: false }))}
       
       case "updateSticker":
         console.log("updateSticker", action.payload.id)
-        const updatedIndex = stickers.map(function(o:Sticker) { return o.id; }).indexOf(action.payload.id);
-        const n_stickers = [...stickers];
+        const updatedIndex = state.stickers.map(function(o:Sticker) { return o.id; }).indexOf(action.payload.id);
+        const n_stickers = [...state.stickers];
         n_stickers[updatedIndex] = action.payload.sticker
+
         return {...state, stickers: n_stickers}
 
       default:
@@ -96,13 +103,24 @@ const useStickers = () => {
       dispatch({type:"setStickers", payload:{stickers}});
     }
     const updateSticker = (id: string, sticker:any)=>{
-      dispatch({type:"updateSticker", payload:{sticker}});
+      dispatch({type:"updateSticker", payload:{sticker, id}});
+    }
+
+    const addSticker = (sticker:any)=>{
+      dispatch({type:"addSticker", payload:{sticker}});
+    }
+
+    const removeSticker = (id:string)=>{
+      dispatch({type:"removeSticker", payload:{id}});
+    }
+
+    const shuffleStickers = ()=>{
+      dispatch({type:"shuffleStickers", payload:{}});
     }
 
 
 
-
-    return [ state, { startDraggingSticker, stopDraggingSticker, setStickers,updateSticker}  ]
+    return [ state, { startDraggingSticker, stopDraggingSticker,addSticker, removeSticker,shuffleStickers, setStickers,updateSticker}  ]
   };
 
 
